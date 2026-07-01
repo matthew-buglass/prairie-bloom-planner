@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Local agent/editor settings (machine-specific)
+.claude/
+
+# Node / Playwright deps
+node_modules/
+
+# Playwright run output (regenerated each run)
+/test-results/
+/playwright-report/
+/blob-report/
+.last-run.json
+
+# Visual baselines (test/visual.spec.js-snapshots/) are intentionally committed -
+# toHaveScreenshot needs them to detect regressions.
