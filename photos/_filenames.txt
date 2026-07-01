@@ -1,0 +1,31 @@
+crocus.jpg	Prairie Crocus	Anemone patens
+blueeyed.jpg	Blue-Eyed Grass	Sisyrinchium montanum
+avens.jpg	Three-Flowered Avens	Geum triflorum
+bedstraw.jpg	Northern Bedstraw	Galium boreale
+anemone.jpg	Long-Fruited Anemone	Anemone cylindrica
+alumroot.jpg	Alumroot	Heuchera richardsonii
+hedysarum.jpg	Hedysarum	Hedysarum boreale
+yarrow.jpg	Yarrow	Achillea millefolium
+harebell.jpg	Harebell	Campanula rotundifolia
+hyssop.jpg	Giant Hyssop	Agastache foeniculum
+flax.jpg	Wild Blue Flax	Linum lewisii
+primrose.jpg	Yellow Evening Primrose	Oenothera biennis
+milkweed.jpg	Showy Milkweed	Asclepias speciosa
+redlily.jpg	Western Red Lily	Lilium philadelphicum
+bergamot.jpg	Bergamot	Monarda fistulosa
+gaillardia.jpg	Gaillardia	Gaillardia aristata
+blackeyed.jpg	Black-eyed Susan	Rudbeckia hirta
+purpleclover.jpg	Purple Prairie Clover	Dalea purpurea
+whiteclover.jpg	White Prairie Clover	Dalea candida
+coneflower.jpg	Prairie Coneflower	Ratibida columnifera
+meadowblazing.jpg	Meadow Blazingstar	Liatris ligulistylis
+goldenaster.jpg	Hairy Golden Aster	Heterotheca villosa
+prairiesage.jpg	Prairie Sage	Artemisia ludoviciana
+pasturesage.jpg	Pasture Sage	Artemisia frigida
+dottedblazing.jpg	Dotted Blazingstar	Liatris punctata
+smoothaster.jpg	Smooth Aster	Symphyotrichum laeve
+lindleyaster.jpg	Lindley's Aster	Symphyotrichum ciliolatum
+manyflower.jpg	Many-Flowered Aster	Symphyotrichum ericoides
+stiffgold.jpg	Stiff Goldenrod	Solidago rigida
+canadagold.jpg	Canada Goldenrod	Solidago canadensis
+mountaingold.jpg	Mountain Goldenrod	Solidago simplex

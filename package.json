@@ -1,0 +1,15 @@
+{
+  "name": "prairie-bloom-planner-tests",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Playwright regression tests for the Prairie Bloom Planner static app. Not part of the app itself (the app has no build step).",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:update-snapshots": "playwright test visual --update-snapshots",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1"
+  }
+}

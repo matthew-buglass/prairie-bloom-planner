@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prairie Bloom Planner - Saskatoon · Zone 3b</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <div class="brand">
+      <div class="eyebrow">Saskatoon, Saskatchewan · USDA Zone 3b</div>
+      <h1 class="title">Prairie Bloom <em>Planner</em></h1>
+      <p class="sub">A planning bench for a self-sustaining native pollinator garden - built from 31 prairie wildflowers and the season they share, from the April crocus to the October goldenrod.</p>
+    </div>
+    <div class="season-arc" aria-label="Number of species in bloom by month">
+      <div class="arc-label"><span>Spring gap</span><span>Bloom season</span><span>Frost</span></div>
+      <div class="arc" id="seasonArc"></div>
+      <div class="arc-note">Species in bloom across the season - note how thin April is.</div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap tabs-inner" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="explore"><span class="num">01</span>Explore</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="calendar"><span class="num">02</span>Bloom Calendar</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="plan"><span class="num">03</span>My Plan<span class="badge" id="planBadge">0</span></button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="notes"><span class="num">04</span>Field Notes</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ===== EXPLORE ===== -->
+  <section class="panel active" id="panel-explore" role="tabpanel">
+    <div class="section-head">
+      <h2>The collection</h2>
+      <p>Thirty-one wildflowers native to the Saskatoon region. Filter by what you care about, then add species to your plan.</p>
+    </div>
+
+    <div class="edtox-note">
+      <span class="edtox-note-tags"><span class="tag edib">Edible</span><span class="tag tox">Toxic</span></span>
+      <p><b>About the Edible / Toxic tags:</b> these are general guides only, each backed by a citation in the plant&rsquo;s &ldquo;About this plant&rdquo; panel below. They are not a substitute for expert advice - always confirm a plant&rsquo;s identity with a trusted local source before eating any wild plant, and keep toxic species away from children and pets.</p>
+    </div>
+
+    <div class="toolbar">
+      <div class="field">
+        <label for="search">Search</label>
+        <input type="search" id="search" placeholder="Name, e.g. blazingstar">
+      </div>
+      <div class="field">
+        <label>Bloom colour</label>
+        <div class="chips" id="colorChips"></div>
+      </div>
+      <div class="field">
+        <label>Attracts</label>
+        <div class="chips" id="attractChips"></div>
+      </div>
+      <div class="field">
+        <label for="monthSel">Blooming in</label>
+        <select id="monthSel">
+          <option value="">Any month</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="edibSel">Edibility</label>
+        <select id="edibSel">
+          <option value="">Any</option>
+          <option value="edible">Edible</option>
+          <option value="toxic">Toxic</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="behavSel">Behaviour</label>
+        <select id="behavSel">
+          <option value="">Any</option>
+          <option value="nfix">Nitrogen-fixer</option>
+          <option value="aggressive">Aggressive colonizer</option>
+          <option value="spreading">Spreads moderately</option>
+          <option value="climax">Slow climax species</option>
+          <option value="fast">Fast cover (≤1 yr)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="heightSel">Height</label>
+        <select id="heightSel">
+          <option value="">Any</option>
+          <option value="low">Low ≤60 cm (intersection-safe)</option>
+          <option value="tall">Tall &gt;60 cm</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="moistSel">Soil moisture</label>
+        <select id="moistSel">
+          <option value="">Any</option>
+          <option value="dry">Dry / xeric</option>
+          <option value="mesic">Mesic</option>
+          <option value="moist">Moist</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fertSel">Soil fertility</label>
+        <select id="fertSel">
+          <option value="">Any</option>
+          <option value="lean">Lean soil</option>
+          <option value="humus">Humus-rich</option>
+          <option value="adaptable">Rich Soil Tolerant</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="sortSel">Sort</label>
+        <select id="sortSel">
+          <option value="bloom">First bloom</option>
+          <option value="name">Name</option>
+          <option value="ttf">Time to flower</option>
+          <option value="height">Height</option>
+          <option value="duration">Bloom length</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button class="ghost-btn" id="clearFilters">Clear filters</button>
+      </div>
+    </div>
+
+    <p class="count-line" id="countLine"></p>
+    <div class="grid" id="cardGrid"></div>
+  </section>
+
+  <!-- ===== CALENDAR ===== -->
+  <section class="panel" id="panel-calendar" role="tabpanel">
+    <div class="section-head">
+      <h2>Bloom calendar</h2>
+      <p>Every species' bloom window, mid-April to October, coloured by its actual petal colour. Darker, taller bars mark peak bloom. The bottom row counts how many species are open each month - your map for closing gaps. Toggle to see only your plan.</p>
+    </div>
+    <div class="toolbar" style="margin-bottom:12px">
+      <div class="field">
+        <label>Show</label>
+        <div class="chips">
+          <button class="chip" id="calAll" aria-pressed="true">All 31 species</button>
+          <button class="chip" id="calPlan" aria-pressed="false">My plan only</button>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--c-purple)"></i> Purple</span>
+      <span><i style="background:var(--c-blue)"></i> Blue</span>
+      <span><i style="background:var(--c-pinkred)"></i> Pink-red</span>
+      <span><i style="background:var(--c-yellow)"></i> Yellow</span>
+      <span><i style="background:var(--c-white);border:1px solid var(--c-white-line)"></i> White</span>
+      <span><i style="background:var(--green);opacity:.45"></i> In bloom &nbsp;<i style="background:var(--green)"></i> Peak</span>
+    </div>
+    <div class="cal-scroll">
+      <table class="cal">
+        <thead><tr id="calHead"></tr></thead>
+        <tbody id="calBody"></tbody>
+        <tfoot id="calFoot"></tfoot>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== MY PLAN ===== -->
+  <section class="panel" id="panel-plan" role="tabpanel">
+    <div class="section-head">
+      <h2>My garden plan</h2>
+      <p>Your selected species, checked live against the six things that make a prairie planting hold together on its own.</p>
+    </div>
+
+    <div class="plan-name-row">
+      <label for="planName">Plan name</label>
+      <input type="text" id="planName" maxlength="80" autocomplete="off" spellcheck="false" placeholder="Name this plan (optional)">
+    </div>
+
+    <div class="plan-actions">
+      <button class="btn-primary" id="starterBtn">Load a balanced starter plan</button>
+      <button class="ghost-btn" id="exportBtn">Export plan (.json)</button>
+      <button class="ghost-btn" id="pdfBtn">Export plan (PDF)</button>
+      <button class="ghost-btn" id="importBtn">Import plan</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <button class="ghost-btn" id="clearPlan">Clear plan</button>
+    </div>
+
+    <div class="plan-layout">
+      <div>
+        <div id="planListWrap"></div>
+      </div>
+      <div class="analysis" id="analysis"></div>
+    </div>
+  </section>
+
+  <!-- ===== FIELD NOTES ===== -->
+  <section class="panel" id="panel-notes" role="tabpanel">
+    <div class="section-head">
+      <h2>Field notes</h2>
+      <p>The ecological reasoning behind the plan checks - drawn from your research for Saskatoon's Zone 3b conditions.</p>
+    </div>
+    <div class="notes-grid">
+      <article class="note">
+        <h3><span class="n">A</span> The April spring gap</h3>
+        <p>Overwintering bumblebee queens and early solitary bees emerge the moment the snow melts, but only one native here blooms that early: the <strong>Prairie Crocus</strong>, the first prairie plant to flower each spring, often opening while snowbanks still linger.</p>
+        <p>The catch is that crocus is slow from seed - it usually won't bloom until its <strong>third growing season</strong>, spending its first year or two building roots. A young garden can't lean on it, so bridge the gap by planting fast second-year pioneers densely around it - <strong>Blue-Eyed Grass</strong> and <strong>Three-Flowered Avens</strong> give early cover and nectar while the crocus matures underneath.</p>
+        <div class="sources"><b>Sources</b><a href="http://www.naturenorth.com/spring/flora/crocus/Prairie_Crocus2.html" target="_blank" rel="noopener">NatureNorth - Biology of the Prairie Crocus</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">B</span> Nitrogen that runs itself</h3>
+        <p>In the sandy, compacted soils common in Saskatoon yards, three legumes do the fertilising for you. <strong>Purple Prairie Clover</strong>, <strong>White Prairie Clover</strong>, and <strong>Hedysarum</strong> host <em>Rhizobium</em> bacteria in root nodules that pull nitrogen from the air and release it into the soil - White Prairie Clover is even rated a "high" nitrogen fixer by the USDA.</p>
+        <p>That feeds the heavy feeders that can't fix their own - <strong>Western Red Lily</strong> and <strong>Alumroot</strong> - through their slow multi-year establishment. The clovers' deep taproots also crack hardpan subsoil, letting water reach shallow-rooted neighbours.</p>
+        <p class="pull">Aim for nitrogen-fixers at roughly 10–20% of the plants - about a tenth matches prairie restoration seed mixes, nudging toward a fifth on poor or disturbed urban soil.</p>
+        <div class="sources"><b>Sources</b><a href="https://pfaf.org/user/Plant.aspx?LatinName=Dalea+purpurea" target="_blank" rel="noopener">Plants For A Future - Dalea purpurea</a> · <a href="https://en.wikipedia.org/wiki/Dalea_candida" target="_blank" rel="noopener">USDA &quot;high&quot; fixer - Dalea candida</a> · <a href="https://www.saskatchewan.ca/business/agriculture-natural-resources-and-industry/agribusiness-farmers-and-ranchers/crops-and-irrigation/soils-fertility-and-nutrients/soil-improvements-with-legumes" target="_blank" rel="noopener">Gov. of Saskatchewan - Soil Improvements with Legumes</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">C</span> Colonizers vs. climax species</h3>
+        <p>Left unchecked, vigorous rhizomatous spreaders form dense mats and crowd out the fragile slow-growers. The three to watch: <strong>Canada Goldenrod</strong>, <strong>Yarrow</strong>, and <strong>Prairie Sage</strong> - the last aggressive enough that ordinary plastic edging often won't fully hold it.</p>
+        <p>Zone the garden by growth rate:</p>
+        <ul>
+          <li><strong>Climax zone</strong> - low-competition, well-drained ground for crocus, red lily, alumroot.</li>
+          <li><strong>Buffer zone</strong> - clump-forming, taprooted plants (Giant Hyssop, Black-eyed Susan, Purple Prairie Clover) ringed around the climax species to absorb nutrients without encroaching.</li>
+          <li><strong>Containment zone</strong> - keep the aggressive spreaders behind deep soil/root barriers or in separate beds their roots can't escape.</li>
+        </ul>
+        <div class="sources"><b>Sources</b><a href="https://www.prairiemoon.com/artemisia-ludoviciana-prairie-sage" target="_blank" rel="noopener">Prairie Moon - Prairie Sage</a> · <a href="https://www.missouribotanicalgarden.org/PlantFinder/PlantFinderDetails.aspx?taxonid=277144" target="_blank" rel="noopener">Missouri Botanical Garden - Artemisia ludoviciana</a> · <a href="https://extension.illinois.edu/blogs/garden-scoop/2022-09-24-goldenrods-and-asters-are-stars-fall" target="_blank" rel="noopener">Illinois Extension - Goldenrods &amp; asters</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">D</span> Feeding the autumn fat reserves</h3>
+        <p>From August into October the floral landscape is asters and goldenrods, frost-tolerant enough to keep offering nectar after light ground frost - the last fuelling station before winter.</p>
+        <p>That late pollen and nectar is what lets newly-mated bumblebee queens build the fat reserves that carry them, alone, through winter underground - and it lets migrating Monarchs lay down the abdominal fat that powers the flight south. Don't let your plan run dry in September.</p>
+        <div class="sources"><b>Sources</b><a href="https://xerces.org/bumble-bees/nesting-overwintering" target="_blank" rel="noopener">Xerces Society - Bumble bee nesting &amp; overwintering</a> · <a href="https://extension.illinois.edu/blogs/garden-scoop/2022-09-24-goldenrods-and-asters-are-stars-fall" target="_blank" rel="noopener">Illinois Extension - Goldenrods &amp; asters</a> · <a href="https://xerces.org/monarchs/monarch-nectar-plant-guides" target="_blank" rel="noopener">Xerces Society - Monarch nectar plants</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">E</span> Sowing for a Zone 3b winter</h3>
+        <p>Most prairie seed needs cold, moist stratification to germinate. The simplest route is to mimic nature: <strong>surface-sow outdoors in fall</strong>, late September to early November, and let the winter do the work.</p>
+        <p>Sowing in spring instead? Stratify artificially first - mix seed with damp sand or vermiculite, seal it, and refrigerate at about <strong>1–4 °C (33–40 °F)</strong> for the species' required period (commonly 30–120 days) before planting out.</p>
+        <div class="sources"><b>Sources</b><a href="https://www.prairiemoon.com/how-to-germinate-native-seeds.html" target="_blank" rel="noopener">Prairie Moon Nursery - How to Germinate Native Seeds</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">F</span> Boulevard sightline rule</h3>
+        <p>If you're planting a City boulevard, Saskatoon's boulevard gardening guidelines ask that plants (and movable structures) stay <strong>no higher than 0.6 m (2 ft) in areas next to intersections, driveways, and corners</strong>, so drivers and pedestrians keep clear sightlines.</p>
+        <p>That 0.6 m line is exactly the threshold this tool flags as "Tall." Keep the tall performers - Bergamot, Red Lily, Meadow Blazingstar, Canada Goldenrod and the like - away from corners and driveway edges, in the centre of deep beds or on open stretches. The "intersection-safe" filter in Explore flags everything that stays under the limit.</p>
+        <div class="sources"><b>Sources</b><a href="https://www.saskatoon.ca/sites/default/files/documents/corporate-performance/environmental-corporate-initiatives/guidelines_boulevard_gardening_and_maintenance_2019.pdf" target="_blank" rel="noopener">City of Saskatoon - Boulevard Gardening &amp; Maintenance Guidelines</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">G</span> How the nitrogen check is calculated</h3>
+        <p>The <strong>Nitrogen balance</strong> meter in My Plan is simple: it adds up how many individual plants are nitrogen-fixers (your quantities included), divides by the total number of plants, and shows that percentage. The shaded zone marks a <strong>10–20% target band</strong>.</p>
+        <p>Why that band? Prairie reconstruction seed mixes typically run legumes at about a tenth of the mix, and natural prairie sustains itself at similarly low legume cover. Forage and pasture studies push higher (40%+ in cool-season systems), but that's to maximise hay yield, not to keep a low-input garden ticking over - so a tenth is plenty, with up to a fifth as a cushion on poor or disturbed urban soil.</p>
+        <p>Two caveats the percentage can't show: fixation only happens if the matching <em>Rhizobium</em> bacteria are in the soil (use inoculated seed on disturbed ground), and legumes fix <em>less</em> when soil nitrogen is already high - so don't fertilise, and leave plant litter in place each fall to recycle nitrogen, which lowers how many fixers you need.</p>
+        <div class="sources"><b>Sources</b><a href="https://www.sciencedirect.com/science/article/abs/pii/S0006320711003879" target="_blank" rel="noopener">Larson et al. - prairie seed-mix ratios</a> · <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12260219/" target="_blank" rel="noopener">Legume proportion in grasslands (review)</a> · <a href="https://www.saskatchewan.ca/business/agriculture-natural-resources-and-industry/agribusiness-farmers-and-ranchers/crops-and-irrigation/soils-fertility-and-nutrients/soil-improvements-with-legumes" target="_blank" rel="noopener">Gov. of Saskatchewan - Soil Improvements with Legumes</a> · <a href="https://tallgrassprairiecenter.org/native-seed-production-manual/general-information/propagation-native-species" target="_blank" rel="noopener">Tallgrass Prairie Center - rhizobium inoculation</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">H</span> Saskatchewan's protected flower</h3>
+        <p>The <strong>Western Red Lily</strong> (<em>Lilium philadelphicum</em>) isn't just another pretty face in this collection - it has been Saskatchewan's official floral emblem since 1941, and it appears on the provincial flag and coat of arms. That status comes with legal teeth: as a protected species under the Provincial Emblems and Honours Act, it cannot be picked, uprooted, or destroyed, and doing so can bring a fine of up to $500.</p>
+        <p>There's an ecological reason to leave wild ones be, too. Lilies transplant terribly - they often depend on very specific soil conditions, so digging one up usually just kills it without ever establishing it elsewhere. If you want this flame-red beauty in your garden, start it from nursery-grown bulbs or seed, never from the wild. (And note its other tag: as a true lily it is highly toxic to cats.)</p>
+        <div class="sources"><b>Sources</b><a href="https://www.saskatchewan.ca/government/visual-identity-and-protocol/emblems-and-flags" target="_blank" rel="noopener">Gov. of Saskatchewan - Floral emblem</a> &middot; <a href="https://panow.com/2019/07/23/a-floral-predicament-saskatchewan-residents-encouraged-to-avoid-picking-wildflowers/" target="_blank" rel="noopener">paNOW - protected flower / $500 fine</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">I</span> How milkweed makes a monarch uneatable</h3>
+        <p><strong>Showy Milkweed</strong> earns its Toxic tag from cardiac glycosides (cardenolides) - the very compounds that make it a one-plant pharmacy for the <em>monarch butterfly</em>. Monarch caterpillars feed only on milkweeds, and rather than being harmed, they store those toxins in their own bodies.</p>
+        <p>The result is a caterpillar - and later a butterfly - that is poisonous and foul-tasting to birds and other predators. The bold orange-and-black colouring is a warning label: a bird that samples one monarch quickly learns to leave the rest alone. So the plant you'd keep away from pets is exactly the plant that arms North America's most famous migrant against being eaten.</p>
+        <div class="sources"><b>Sources</b><a href="https://monarchjointventure.org/monarch-biology/why-milkweed" target="_blank" rel="noopener">Monarch Joint Venture - Why Milkweed</a> &middot; <a href="https://monarchjointventure.org/monarch-biology/threats/natural-enemies" target="_blank" rel="noopener">Monarch Joint Venture - Natural Enemies</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">J</span> Goldenrod didn't give you hay fever</h3>
+        <p>Every autumn the <strong>goldenrods</strong> (this collection includes three) get blamed for hay fever, and every autumn they're innocent. Goldenrod is insect-pollinated, so its pollen is heavy and sticky - built to ride on a bee, not the wind. To react to it you'd practically have to bury your face in the flowers.</p>
+        <p>The real culprit is <em>ragweed</em>, which blooms at the same time but is wind-pollinated, casting clouds of fine, light pollen. Ragweed's flowers are drab and green, so nobody notices them - while the showy gold spires standing nearby take the blame. Worth remembering before you pull out one of the best late-season nectar sources on the prairie.</p>
+        <div class="sources"><b>Sources</b><a href="https://extension.illinois.edu/blogs/good-growing/2022-10-21-autumn-allergies-dont-blame-goldenrod" target="_blank" rel="noopener">Illinois Extension - Don't blame goldenrod</a> &middot; <a href="https://blog.nwf.org/2014/09/the-goldenrod-allergy-myth/" target="_blank" rel="noopener">NWF - The Goldenrod Allergy Myth</a> &middot; <a href="https://prairieup.com/goldenrod-doesnt-cause-hayfever-here-are-some-good-ones-to-grow/" target="_blank" rel="noopener">Prairie Up - Goldenrod doesn't cause hayfever</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">K</span> Buzz pollination and the bumblebee's key</h3>
+        <p><strong>Three-Flowered Avens</strong> (also called Prairie Smoke) hangs its flowers upside-down as nearly-closed pink globes - a locked door most insects can't open. The key belongs to <em>bumblebees</em>, which grip the flower and rapidly vibrate their flight muscles to shake the pollen loose, a trick called buzz pollination (or sonication). It's the same technique that makes bumblebees star pollinators of tomatoes and blueberries.</p>
+        <p>Because this plant blooms so early, its main visitors are overwintered <em>bumblebee queens</em> just emerging and badly in need of food - and they're rewarded with that hard-to-reach pollen. After pollination the flowers turn upright and the styles stretch into the feathery pink plumes that give Prairie Smoke its name. No bumblebees, no smoke.</p>
+        <div class="sources"><b>Sources</b><a href="https://xerces.org/blog/prairie-smoke" target="_blank" rel="noopener">Xerces Society - Prairie Smoke</a> &middot; <a href="https://hort.extension.wisc.edu/articles/prairie-smoke-geum-triflorum/" target="_blank" rel="noopener">UW-Madison Horticulture - Prairie Smoke</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">L</span> The prairie's hidden half</h3>
+        <p>On the prairie, what you see is the tip of the iceberg. <strong>Dotted Blazing Star</strong> sends down a thick taproot measured at around 16 feet deep in loose soil - many times the height of the foot-tall plant above ground. <strong>Purple</strong> and <strong>White Prairie Clover</strong> drive deep taproots of their own.</p>
+        <p>That buried architecture is the secret to surviving a dry Zone 3b summer: deep roots reach moisture long after the topsoil bakes, store energy to resprout after drought or fire, and quietly build soil. It also explains why these plants resent being moved - and why they reward patience, spending their first year or two growing <em>down</em> before they put on much of a show up top.</p>
+        <div class="sources"><b>Sources</b><a href="https://en.wikipedia.org/wiki/Liatris_punctata" target="_blank" rel="noopener">Liatris punctata - root depth</a> &middot; <a href="https://growitbuildit.com/dotted-blazing-star-liatris-punctata/" target="_blank" rel="noopener">GrowItBuildIt - Dotted Blazing Star</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">M</span> Plants for the picky eaters</h3>
+        <p>Most flowers feed generalist pollinators, but some native bees are <em>specialists</em> (oligolectic) - they gather pollen from just one kind of plant. <strong>Wild Bergamot</strong> feeds several: the tiny sweat bee <em>Dufourea monardae</em> has only ever been recorded on <em>Monarda</em>, and two more bees (<em>Perdita gerhardi</em> and <em>Protandrena abdominalis</em>) lean heavily on it.</p>
+        <p>That's the case for planting beyond the honeybee crowd-pleasers. A specialist bee can't simply switch flowers if its host plant vanishes, so each specialist plant you grow supports bees that nothing else in the garden can. Bergamot is generous on both counts - showy enough for the generalists, essential for its specialists.</p>
+        <div class="sources"><b>Sources</b><a href="https://xerces.org/blog/plants-for-pollinators-wild-bergamot" target="_blank" rel="noopener">Xerces Society - Wild Bergamot</a> &middot; <a href="https://mortonarb.org/plant-and-protect/trees-and-plants/wild-bergamot/" target="_blank" rel="noopener">The Morton Arboretum - Wild bergamot</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">N</span> Bee balm: mouthwash, tea, and a borrowed name</h3>
+        <p><strong>Wild Bergamot</strong> got its common name because its scent reminded settlers of the bergamot orange that flavours Earl Grey tea - but the two aren't related, and it's the citrus, not this prairie mint, that's actually in your cup. What the leaves <em>do</em> contain is thymol, the antiseptic compound that's a primary ingredient in commercial mouthwash.</p>
+        <p>The plant has a long history as a tea in its own right: many Indigenous nations brewed it medicinally, and colonists steeped <em>Monarda</em> as "Oswego tea," a homegrown stand-in for British tea around the time of the Revolution. It pairs nicely with its Edible tag - a fragrant, oregano-and-mint brew straight from the garden.</p>
+        <div class="sources"><b>Sources</b><a href="https://en.wikipedia.org/wiki/Monarda_fistulosa" target="_blank" rel="noopener">Monarda fistulosa - thymol / mouthwash</a> &middot; <a href="https://gardenerspath.com/plants/herbs/grow-bee-balm/" target="_blank" rel="noopener">Gardener's Path - Bee Balm history</a></div>
+      </article>
+
+      <article class="note">
+        <h3><span class="n">O</span> Don't cut it all back: leave the stalks</h3>
+        <p>The tidy instinct to clear every dead stem in fall throws out a winter's worth of wildlife. Standing seed heads - <strong>coneflower</strong>, <strong>blazing star</strong>, the <strong>goldenrods</strong> - feed goldfinches and other birds through the cold months, and the hollow or pithy stems become shelter where many native bees overwinter.</p>
+        <p>The fix is easy. Leave the stems and seed heads standing all winter, then cut them back in <em>spring</em> instead of fall, trimming to roughly 8 to 24 inches so any bees still inside can finish emerging. As a bonus, snow caught on the seed heads turns a dormant Zone 3b bed into something worth looking at in January.</p>
+        <div class="sources"><b>Sources</b><a href="https://xerces.org/blog/leave-the-leaves" target="_blank" rel="noopener">Xerces Society - Leave the Leaves!</a> &middot; <a href="https://xerces.org/blog/moving-beyond-flowers-natural-nesting-habitat-for-bees-and-other-insects" target="_blank" rel="noopener">Xerces Society - Nesting habitat for bees</a></div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Prairie Bloom Planner · for Saskatoon, SK (Zone 3b)</span>
+    <span>Heights &amp; spreads verified against external horticultural sources (Missouri Botanical Garden, Lady Bird Johnson Wildflower Center, USDA, Prairie Moon &amp; others) · plan saved in this browser</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- Optional: photo credits, managed in the photos/ folder -->
+<script src="photos/credits.js"></script>
+<div id="printDoc" aria-hidden="true"></div>
+
+<!-- App scripts: plain globals, loaded in dependency order.
+     Works from file:// and static hosting (no modules / no fetch). -->
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/explore.js"></script>
+<script src="js/plan.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
