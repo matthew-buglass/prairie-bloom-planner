@@ -1,7 +1,7 @@
 /* ============================================================
    Prairie Bloom Planner - PLAN
    My Plan tab: the plant list and the live garden analysis (bloom coverage, pollinators, footprint, etc.).
-   Load order: credits.js → data.js → core.js → explore.js → plan.js → app.js
+   Load order: credits.js → data.js → core.js → explore.js → plan.js → bubble.js → app.js
    Plain browser globals (no ES modules / no fetch) so this runs
    equally from file:// and from a static web host.
    ============================================================ */
@@ -119,7 +119,7 @@ function renderAnalysis(list){
   /* 4 - colonizers vs climax */
   const aggr = list.filter(s=>s.colonizer==="aggressive");
   const spread = list.filter(s=>s.colonizer==="spreading");
-  const vulnerable = list.filter(s=>s.zone==="climax"||s.ttf>=3);
+  const vulnerable = list.filter(s=>s.zone==="climax"||s.yearsToFlower>=3);
   let cStatus = (aggr.length&&vulnerable.length)?"alert":(aggr.length||spread.length?"warn":"good");
   let lines="";
   if(aggr.length&&vulnerable.length){
@@ -139,20 +139,20 @@ function renderAnalysis(list){
   </div>`);
 
   /* 5 - establishment timeline */
-  const slow=list.filter(s=>s.ttf>=3), mod=list.filter(s=>s.ttf===2), fast=list.filter(s=>s.ttf<=1);
+  const slow=list.filter(s=>s.yearsToFlower>=3), mod=list.filter(s=>s.yearsToFlower===2), fast=list.filter(s=>s.yearsToFlower<=1);
   A.push(`<div class="acard" data-sec="estab">
     <h3>Establishment timeline</h3>
     <p>${fast.length?`<strong>${fast.length}</strong> fast pioneer${fast.length>1?'s':''} for cover in year one${slow.length?`, while ${slow.length} slow climax species fill in over several years.`:'.'}`:`Heads up - no quick pioneers. Add Giant Hyssop, Black-eyed Susan or Gaillardia for first-year colour while the rest mature.`}</p>
     <ul class="est-list">
       ${[...slow,...mod,...fast].map(s=>{
-        const cls = s.ttf>=3?'yr-slow':s.ttf===2?'yr-mod':'yr-fast';
-        return `<li><span class="est-yr ${cls}">${s.ttfText}</span>${s.common}</li>`;
+        const cls = s.yearsToFlower>=3?'yr-slow':s.yearsToFlower===2?'yr-mod':'yr-fast';
+        return `<li><span class="est-yr ${cls}">${s.yearsToFlowerText}</span>${s.common}</li>`;
       }).join("")}
     </ul>
   </div>`);
 
   /* 6 - sightlines */
-  const tall = list.filter(s=>s.hMax>60);
+  const tall = list.filter(s=>s.maxHeightCm>60);
   A.push(`<div class="acard">
     <h3>Boulevard sightlines</h3>
     <p>${tall.length
@@ -183,7 +183,7 @@ function renderAnalysis(list){
     <div class="atable-wrap"><table class="atable">
       <thead><tr><th>Layer</th><th class="num">Plants</th><th>Species</th></tr></thead>
       <tbody>${BANDS.map(b=>{
-        const inB=list.filter(s=>s.hMax>=b.lo&&s.hMax<=b.hi);
+        const inB=list.filter(s=>s.maxHeightCm>=b.lo&&s.maxHeightCm<=b.hi);
         const n=inB.reduce((x,s)=>x+qtyOf(s),0);
         const names=inB.length?inB.map(s=>`${s.common}${qtyOf(s)>1?` ×${qtyOf(s)}`:''}`).join(", "):'<span class="muted"> - </span>';
         return `<tr><td><b>${b.name}</b><div class="layer-band">${b.lo}–${b.hi>9000?'+':b.hi+' cm'}</div></td><td class="num">${n||''}</td><td>${names}</td></tr>`;
@@ -192,7 +192,7 @@ function renderAnalysis(list){
   </div>`);
 
   /* 8 - estimated footprint: median + upper-bound spread × quantity, metric */
-  const rows=list.map(s=>{const q=qtyOf(s);const med=(s.wMin+s.wMax)/2;const rMed=med/200,rMax=s.wMax/200;const eachMed=Math.PI*rMed*rMed,eachMax=Math.PI*rMax*rMax;return {s,q,med,eachMed,eachMax,subMed:eachMed*q,subMax:eachMax*q};}).sort((a,b)=>b.subMed-a.subMed);
+  const rows=list.map(s=>{const q=qtyOf(s);const med=(s.minSpreadCm+s.maxSpreadCm)/2;const rMed=med/200,rMax=s.maxSpreadCm/200;const eachMed=Math.PI*rMed*rMed,eachMax=Math.PI*rMax*rMax;return {s,q,med,eachMed,eachMax,subMed:eachMed*q,subMax:eachMax*q};}).sort((a,b)=>b.subMed-a.subMed);
   const totMed=rows.reduce((n,r)=>n+r.subMed,0);
   const totMax=rows.reduce((n,r)=>n+r.subMax,0);
   A.push(`<div class="acard">
@@ -200,7 +200,7 @@ function renderAnalysis(list){
     <p>Ground each plant covers at maturity - a circle of its spread, times how many you plant. The range runs from a <b>median</b> estimate (typical spread) to an <b>upper bound</b> (every plant at its widest), to give a sense of the variation.</p>
     <div class="atable-wrap"><table class="atable">
       <thead><tr><th>Plant</th><th class="num">Qty</th><th class="num">Ø cm</th><th class="num">m² med</th><th class="num">m² max</th></tr></thead>
-      <tbody>${rows.map(r=>`<tr><td>${r.s.common}</td><td class="num">${r.q}</td><td class="num">${Math.round(r.med)}–${r.s.wMax}</td><td class="num">${r.subMed.toFixed(2)}</td><td class="num">${r.subMax.toFixed(2)}</td></tr>`).join("")}</tbody>
+      <tbody>${rows.map(r=>`<tr><td>${r.s.common}</td><td class="num">${r.q}</td><td class="num">${Math.round(r.med)}–${r.s.maxSpreadCm}</td><td class="num">${r.subMed.toFixed(2)}</td><td class="num">${r.subMax.toFixed(2)}</td></tr>`).join("")}</tbody>
       <tfoot><tr><td>Total</td><td class="num">${totalPlants}</td><td class="num"></td><td class="num">${totMed.toFixed(1)}</td><td class="num">${totMax.toFixed(1)}</td></tr></tfoot>
     </table></div>
     <p>Roughly <b>${totMed.toFixed(1)}–${totMax.toFixed(1)} m²</b> of bed at maturity - median estimate up to the upper bound if every plant hits its widest spread. Space plants about one spread apart; rhizomatous spreaders (Yarrow, Prairie Sage, Canada Goldenrod) will run past even this over time.</p>
@@ -239,8 +239,8 @@ function buildPrintDoc(){
       <td><span class="pd-sw" style="background:var(--c-${s.color})"></span><b>${s.common}</b>${EDTOX[s.id]?` <span class="pd-tag ${EDTOX[s.id].t==="toxic"?"toxic":"edible"}">${EDTOX[s.id].t==="toxic"?"Toxic":"Edible"}</span>`:""}<br><span class="pd-sci">${s.sci}</span></td>
       <td class="n">${qty(s)}</td>
       <td>${s.peakText}</td>
-      <td class="n">${s.hMin}–${s.hMax}</td>
-      <td class="n">${s.wMin}–${s.wMax}</td>
+      <td class="n">${s.minHeightCm}–${s.maxHeightCm}</td>
+      <td class="n">${s.minSpreadCm}–${s.maxSpreadCm}</td>
       <td>${roleLabel(s)}</td>
       <td>${poll}</td>
       <td class="pd-tags">${esc(traitTagList(s).map(t=>t.label).join(", "))||"-"}</td>
@@ -269,6 +269,8 @@ function buildPrintDoc(){
     </section>
 
     ${viz}
+
+    ${bubblePrintSection()}
 
     <footer class="pd-foot"><b>Edible / Toxic</b> tags are general guidance drawn from cited sources (each citation is in the interactive planner). Always confirm identification with an expert before eating any wild plant, and keep toxic species away from children and pets.<br>Generated by the Prairie Bloom Planner · native wildflowers for Saskatoon, Zone 3b.</footer>`;
 }

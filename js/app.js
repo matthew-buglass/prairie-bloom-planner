@@ -1,7 +1,7 @@
 /* ============================================================
    Prairie Bloom Planner - APP
    Event wiring + init. Loads last; references everything above. Kicks off the first render.
-   Load order: credits.js → data.js → core.js → explore.js → plan.js → app.js
+   Load order: credits.js → data.js → core.js → explore.js → plan.js → bubble.js → app.js
    Plain browser globals (no ES modules / no fetch) so this runs
    equally from file:// and from a static web host.
    ============================================================ */
@@ -10,7 +10,7 @@
 const STARTER={crocus:3,avens:3,blueeyed:3,bedstraw:2,alumroot:2,hedysarum:2,hyssop:3,flax:5,purpleclover:3,whiteclover:3,gaillardia:3,blackeyed:3,meadowblazing:3,smoothaster:3,dottedblazing:3,manyflower:2,stiffgold:3};
 
 /* ---------------- events ---------------- */
-function refreshAll(){renderCards();renderCalendar();renderPlan();savePlan();}
+function refreshAll(){renderCards();renderCalendar();renderPlan();renderBubble();savePlan();}
 
 document.addEventListener("click",e=>{
   const tab=e.target.closest(".tab");
@@ -19,8 +19,16 @@ document.addEventListener("click",e=>{
     tab.setAttribute("aria-selected","true");
     $$(".panel").forEach(p=>p.classList.remove("active"));
     $("#panel-"+tab.dataset.tab).classList.add("active");
+    if(tab.dataset.tab==="bubble") renderBubble();
     window.scrollTo({top:0,behavior:"smooth"});
     return;
+  }
+  const drop=e.target.closest("[data-drop]");
+  if(drop){
+    const id=drop.dataset.drop;
+    if(view.mode!=="arrange") setBubMode("arrange");
+    view.armed = view.armed===id ? null : id;
+    renderBubble();return;
   }
   const tog=e.target.closest("[data-toggle]");
   if(tog){
@@ -61,10 +69,33 @@ $("#clearFilters").addEventListener("click",()=>{
 $("#calAll").addEventListener("click",()=>{calMode="all";$("#calAll").setAttribute("aria-pressed","true");$("#calPlan").setAttribute("aria-pressed","false");renderCalendar();});
 $("#calPlan").addEventListener("click",()=>{calMode="plan";$("#calPlan").setAttribute("aria-pressed","true");$("#calAll").setAttribute("aria-pressed","false");renderCalendar();});
 
+/* ---------------- bubble diagram ---------------- */
+$("#bubMonth").addEventListener("input",e=>{view.month=parseInt(e.target.value,10);renderBubble();});
+$("#bubYear").addEventListener("input",e=>{view.year=parseInt(e.target.value,10);renderBubble();});
+$("#bubFit").addEventListener("click",()=>{layout=fitLayout(layout);saveLayout();renderBubble();});
+$("#bubModeDraw").addEventListener("click",()=>setBubMode("draw"));
+$("#bubModeArrange").addEventListener("click",()=>setBubMode("arrange"));
+$("#bubClearYard").addEventListener("click",()=>{
+  if(layout.yard.length && !confirm("Clear the yard shape? Plant positions are kept.")) return;
+  layout.yard=[]; saveLayout(); setBubMode("draw");
+});
+const bubSvg=$("#bubbleSvg");
+bubSvg.addEventListener("pointerdown",bubblePointerDown);
+bubSvg.addEventListener("pointermove",bubblePointerMove);
+bubSvg.addEventListener("pointerup",bubblePointerUp);
+bubSvg.addEventListener("pointercancel",bubblePointerUp);
+bubSvg.addEventListener("dblclick",bubbleDblClick);
+bubSvg.addEventListener("contextmenu",bubbleContextMenu);
+bubSvg.addEventListener("wheel",bubbleWheel,{passive:false});
+document.addEventListener("keydown",bubbleSpace);
+document.addEventListener("keyup",bubbleSpace);
+window.addEventListener("blur",()=>setSpacePan(false));   // Space released in another window
+document.addEventListener("visibilitychange",()=>setSpacePan(false));
+
 $("#starterBtn").addEventListener("click",()=>{Object.entries(STARTER).forEach(([id,q])=>{if(!plan.has(id))plan.set(id,q);});toast("Loaded a balanced starter plan");refreshAll();});
 $("#clearPlan").addEventListener("click",()=>{if(plan.size&&confirm("Remove all species from your plan?")){plan.clear();toast("Plan cleared");refreshAll();}});
 $("#exportBtn").addEventListener("click",()=>{
-  const data={tool:"Prairie Bloom Planner",name:planName,location:"Saskatoon, SK · Zone 3b",saved:new Date().toISOString(),plants:Object.fromEntries(plan),species:[...plan.keys()]};
+  const data={tool:"Prairie Bloom Planner",name:planName,location:"Saskatoon, SK · Zone 3b",saved:new Date().toISOString(),plants:Object.fromEntries(plan),species:[...plan.keys()],layout:syncLayout(layout,plan)};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="my-prairie-plan.json";a.click();
   URL.revokeObjectURL(a.href);toast("Plan exported");
@@ -81,6 +112,7 @@ $("#importFile").addEventListener("change",e=>{
     const valid = ents.filter(([id])=>byId(id)).map(([id,q])=>[id,Math.max(1,parseInt(q,10)||1)]);
     if(!valid.length){toast("No matching species in that file");return;}
     plan=new Map(valid);
+    if(d.layout) layout=sanitizeLayout(d.layout);   // older files have no layout: keep the current one
     if(typeof d.name==="string"){ saveName(d.name); $("#planName").value=d.name; }
     refreshAll();toast(`Imported ${valid.length} species`);
   }catch(err){toast("Couldn't read that file");}};
