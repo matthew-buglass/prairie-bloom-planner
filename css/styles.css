@@ -289,6 +289,38 @@
    and show only the report. Crisp vector output, fully static.
    ============================================================ */
 #printDoc{display:none}
+  /* ---------- bubble diagram ---------- */
+  .bub-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-bottom:14px}
+  .bub-slider{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft)}
+  .bub-slider span{min-width:2.4em;font-family:var(--mono);color:var(--ink)}
+  .bub-layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:18px;align-items:start}
+  @media (max-width:760px){.bub-layout{grid-template-columns:1fr}}
+  #bubbleSvg{display:block;width:100%;aspect-ratio:1/0.625;background:#fdfcf7;border:1px solid var(--line);border-radius:8px;touch-action:none;user-select:none;-webkit-user-select:none}
+  #bubbleSvg.armed{cursor:crosshair}
+  #bubbleSvg.panning,#bubbleSvg.panning *{cursor:grab}
+  .bub-hint{font-size:13px;color:var(--ink-soft);margin:8px 0 0}
+  .bub-grid line{stroke:var(--line-soft);stroke-width:1;vector-effect:non-scaling-stroke}
+  .bub-yard{fill:var(--paper-2);stroke:var(--soil);stroke-width:2;vector-effect:non-scaling-stroke}
+  .bub-draft{fill:none;stroke:var(--soil);stroke-width:2;stroke-dasharray:6 4;vector-effect:non-scaling-stroke}
+  .bub{stroke-width:1.5;vector-effect:non-scaling-stroke;cursor:grab}
+  .bub.flag{stroke:var(--warn) !important;stroke-width:3}
+  .bub-num{text-anchor:middle;dominant-baseline:central;fill:var(--ink);font-family:var(--sans)}
+  .vtx{fill:#fff;stroke:var(--soil);stroke-width:2;vector-effect:non-scaling-stroke;cursor:move}
+  .vtx.first{fill:var(--soil)}
+  .mid{fill:var(--soil);fill-opacity:.35;cursor:copy}
+  .bub-scale line{stroke:var(--ink);stroke-width:2;vector-effect:non-scaling-stroke}
+  .bub-scale text{fill:var(--ink-soft);font-family:var(--sans)}
+  .bub-summary dl{margin:0;display:grid;gap:2px}
+  .bub-summary dl div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line-soft);padding:5px 0;font-size:13px}
+  .bub-summary dt{color:var(--ink-soft)}
+  .bub-summary dd{margin:0;font-family:var(--mono)}
+  .bub-tray{margin-top:16px;display:grid;gap:6px}
+  .bub-tray h4{font-size:15px}
+  .tray-row{display:flex;align-items:center;gap:8px;text-align:left;border:1px solid var(--line);background:#fdfcf7;border-radius:8px;padding:7px 10px;font-size:13px;color:var(--ink)}
+  .tray-row .dot{width:10px;height:10px;border-radius:50%;flex:none;border:1px solid rgba(0,0,0,.12)}
+  .tray-row:hover{border-color:var(--green)}
+  .tray-row.armed{background:var(--green);border-color:var(--green);color:#fff}
+
 @media print{
   @page{margin:14mm}
   html,body{background:#fff !important}
@@ -298,6 +330,10 @@
 #printDoc,#printDoc *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 #printDoc{color:var(--ink);font-family:var(--sans);font-size:10.5pt;line-height:1.45}
 #printDoc .pd-head{border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+#printDoc .pd-bubble{break-before:page}
+#printDoc .pd-cap{color:var(--ink-soft);margin:2px 0 8px}
+#printDoc .pd-bubble-svg{display:block;width:100%;height:auto;border:1px solid var(--line)}
+#printDoc .pd-legend{columns:3;font-size:9.5pt;margin:10px 0 0;padding-left:20px}
 #printDoc .pd-eyebrow{font-family:var(--mono);font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft)}
 #printDoc .pd-title{font-family:var(--serif);font-size:22pt;margin:5px 0 6px;color:var(--ink)}
 #printDoc .pd-title+.pd-meta,#printDoc .pd-meta{font-size:9.5pt;color:var(--ink-soft)}

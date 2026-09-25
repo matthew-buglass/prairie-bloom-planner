@@ -23,7 +23,7 @@ function makeRng(seed) {
   };
 }
 
-const TABS = ['explore', 'calendar', 'plan', 'notes'];
+const TABS = ['explore', 'calendar', 'plan', 'notes', 'bubble'];
 const SELECTS = ['#monthSel', '#edibSel', '#behavSel', '#heightSel', '#moistSel', '#fertSel', '#sortSel'];
 const SEARCHES = ['', 'zzzz', 'blaz', 'clover', '<b>x</b>', '🌼', 'aster milkweed'];
 const QTY_INPUTS = ['0', '-1', '999999', '1.5', 'abc', '', '3'];

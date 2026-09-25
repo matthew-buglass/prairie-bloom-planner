@@ -1,7 +1,7 @@
 /* ============================================================
    Prairie Bloom Planner - EXPLORE
    Explore tab: filters, trait tags, header arc, species cards and the bloom calendar.
-   Load order: credits.js → data.js → core.js → explore.js → plan.js → app.js
+   Load order: credits.js → data.js → core.js → explore.js → plan.js → bubble.js → app.js
    Plain browser globals (no ES modules / no fetch) so this runs
    equally from file:// and from a static web host.
    ============================================================ */
@@ -17,7 +17,7 @@ function traitTagList(s){
   if(s.colonizer==="aggressive") o.push({label:"Aggressive",cls:"aggr"});
   if(s.colonizer==="spreading") o.push({label:"Spreads",cls:"spread"});
   if(s.zone==="climax") o.push({label:"Slow climax",cls:"climax"});
-  if(s.hMax>60) o.push({label:"Tall >60cm",cls:"tall"});
+  if(s.maxHeightCm>60) o.push({label:"Tall >60cm",cls:"tall"});
   if(s.feed==="lean") o.push({label:"Lean soil",cls:"lean"});
   else if(s.feed==="humus") o.push({label:"Humus-rich",cls:"humus"});
   else if(s.feed==="adaptable") o.push({label:"Rich Soil Tolerant",cls:"adapt"});
@@ -65,10 +65,10 @@ function matches(s){
     case"aggressive": if(s.colonizer!=="aggressive") return false; break;
     case"spreading": if(s.colonizer!=="spreading") return false; break;
     case"climax": if(s.zone!=="climax") return false; break;
-    case"fast": if(s.ttf>1) return false; break;
+    case"fast": if(s.yearsToFlower>1) return false; break;
   }
-  if(state.height==="low" && s.hMax>60) return false;
-  if(state.height==="tall" && s.hMax<=60) return false;
+  if(state.height==="low" && s.maxHeightCm>60) return false;
+  if(state.height==="tall" && s.maxHeightCm<=60) return false;
   if(state.moisture && s.moist!==state.moisture) return false;
   if(state.fert && s.feed!==state.fert) return false;
   return true;
@@ -77,8 +77,8 @@ function sortList(list){
   const c={
     bloom:(a,b)=>firstBloom(a)-firstBloom(b)||a.common.localeCompare(b.common),
     name:(a,b)=>a.common.localeCompare(b.common),
-    ttf:(a,b)=>a.ttf-b.ttf||a.common.localeCompare(b.common),
-    height:(a,b)=>a.hMax-b.hMax,
+    yearsToFlower:(a,b)=>a.yearsToFlower-b.yearsToFlower||a.common.localeCompare(b.common),
+    height:(a,b)=>a.maxHeightCm-b.maxHeightCm,
     duration:(a,b)=>b.dur-a.dur
   };
   return list.sort(c[state.sort]);
@@ -105,14 +105,14 @@ function pollPhrase(a){
   return l.slice(0,-1).join(", ")+" and "+l[l.length-1];
 }
 function describe(s){
-  let t=`Bears ${COLORS[s.color]?COLORS[s.color].label.toLowerCase():s.color} blooms ${s.peakText}, lasting about ${s.dur} weeks. Grows ${s.hMin}\u2013${s.hMax} cm tall and ${s.wMin}\u2013${s.wMax} cm wide, and does best in ${moistPhrase(s.moist)} with ${soilPhrase(s.feed)} soil.`;
+  let t=`Bears ${COLORS[s.color]?COLORS[s.color].label.toLowerCase():s.color} blooms ${s.peakText}, lasting about ${s.dur} weeks. Grows ${s.minHeightCm}\u2013${s.maxHeightCm} cm tall and ${s.minSpreadCm}\u2013${s.maxSpreadCm} cm wide, and does best in ${moistPhrase(s.moist)} with ${soilPhrase(s.feed)} soil.`;
   const p=pollPhrase(s.attr);
   t += p ? ` The flowers draw ${p}.` : ` It is wind-pollinated and grown mainly for structure.`;
   const beh=[];
   if(s.nfix) beh.push("It fixes its own nitrogen, gradually enriching the soil around it");
   if(s.colonizer==="aggressive") beh.push("It spreads aggressively, so give it room or a contained spot");
   else if(s.colonizer==="spreading") beh.push("It spreads steadily once established");
-  if(s.zone==="climax") beh.push(`It is slow to settle in, often taking ${s.ttfText} to flower from seed`);
+  if(s.zone==="climax") beh.push(`It is slow to settle in, often taking ${s.yearsToFlowerText} to flower from seed`);
   if(beh.length) t+=" "+beh.join(". ")+".";
   return t;
 }
@@ -139,9 +139,9 @@ function renderCards(){
         <div class="specs">
           <div class="spec"><b>Bloom</b>${s.peakText}</div>
           <div class="spec"><b>Lasts</b>${s.dur} weeks</div>
-          <div class="spec"><b>To flower</b>${s.ttfText}</div>
-          <div class="spec"><b>Height</b>${s.hMin}–${s.hMax} cm</div>
-          <div class="spec"><b>Spread</b>${s.wMin}–${s.wMax} cm${s.colonizer?' ↗':''}</div>
+          <div class="spec"><b>To flower</b>${s.yearsToFlowerText}</div>
+          <div class="spec"><b>Height</b>${s.minHeightCm}–${s.maxHeightCm} cm</div>
+          <div class="spec"><b>Spread</b>${s.minSpreadCm}–${s.maxSpreadCm} cm${s.colonizer?' ↗':''}</div>
           <div class="spec"><b>Moisture</b>${s.moist[0].toUpperCase()+s.moist.slice(1)}</div>
           <div class="spec"><b>Role</b>${roleLabel(s)}</div>
         </div>
@@ -166,7 +166,7 @@ function roleLabel(s){
   if(s.zone==="buffer") return "Buffer";
   if(s.zone==="colonizer") return "Colonizer";
   if(s.nfix) return "N-fixer";
-  if(s.ttf<=1) return "Pioneer";
+  if(s.yearsToFlower<=1) return "Pioneer";
   return "General";
 }
 

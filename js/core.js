@@ -1,7 +1,7 @@
 /* ============================================================
    Prairie Bloom Planner - CORE
    Shared helpers + persisted plan state ($/$$, toast, esc, image + credit helpers, loadPlan/savePlan/setQty).
-   Load order: credits.js → data.js → core.js → explore.js → plan.js → app.js
+   Load order: credits.js → data.js → core.js → explore.js → plan.js → bubble.js → app.js
    Plain browser globals (no ES modules / no fetch) so this runs
    equally from file:// and from a static web host.
    ============================================================ */

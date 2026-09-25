@@ -31,7 +31,12 @@ Scripts load in dependency order — **this order matters**:
    (shared {label,cls} list) + `traitTags` (renders pills), `srcHTML`, `edtoxHTML`, `describe`,
    `renderCards` (grid `#cardGrid`), `renderCalendar`
 5. `js/plan.js`   — `renderPlan`, `renderAnalysis` (10 cards), `buildPrintDoc`
-6. `js/app.js`    — `STARTER` (id→qty map), `refreshAll`, all event listeners, init. **Loads last.**
+6. `js/bubble.js` — Bubble Diagram tab. Pure top half (no DOM): `radiusAt`, `isBlooming`,
+   `polygonArea`, `pointInPolygon`, `overlaps`, `hexCluster`, `sanitizeLayout`, `syncLayout`,
+   `unplacedIndices`, `analyzeLayout`, `fitLayout`, `zoomAt`, `gridStep`/`scaleBarLen`, `let layout`
+   (`LAYOUT_KEY`; view origin `originX/originY` + `scale`). DOM half: `let view`, `bubbleSVG` (shared with the
+   PDF), `renderBubble`, pointer/wheel/Space-pan handlers.
+7. `js/app.js`    — `STARTER` (id→qty map), `refreshAll`, all event listeners, init. **Loads last.**
 
 ## Key feature notes
 
@@ -58,7 +63,7 @@ Scripts load in dependency order — **this order matters**:
   `const`/`let`):
   ```bash
   for f in js/*.js; do node -e "new (require('vm').Script)(require('fs').readFileSync('$f','utf8'))" && echo OK $f; done
-  node -e "new (require('vm').Script)(['js/data.js','js/core.js','js/explore.js','js/plan.js','js/app.js'].map(f=>require('fs').readFileSync(f,'utf8')).join('\n'))"
+  node -e "new (require('vm').Script)(['js/data.js','js/core.js','js/explore.js','js/plan.js','js/bubble.js','js/app.js'].map(f=>require('fs').readFileSync(f,'utf8')).join('\n'))"
   ```
 - For behaviour, load the page in jsdom and exercise the real DOM (click tabs/buttons, set selects,
   read rendered cards). Gotchas: top-level `const`/`let` globals (e.g. `SPECIES`, `EDTOX`) are NOT
